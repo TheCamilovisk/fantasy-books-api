@@ -1,12 +1,12 @@
-from flask import Flask, jsonify
+from flask import Flask
 
 
 def create_app(config=None):
 
     app = Flask(__name__)
 
-    @app.route('/')
-    def hello_world():
-        return jsonify({'msg': 'Hello, World!!!!'})
+    from .auth.resources import user_bp
+
+    app.register_blueprint(user_bp)
 
     return app
