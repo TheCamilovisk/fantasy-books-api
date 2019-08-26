@@ -1,12 +1,6 @@
-from flask import Flask, jsonify
+from fantasybooks_api import create_app
 
-app = Flask(__name__)
+app = create_app()
 
-
-@app.route('/')
-def hello_world():
-    return jsonify({'msg': 'Hello, World!!!!'})
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run()
