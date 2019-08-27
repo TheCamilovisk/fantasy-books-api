@@ -1,10 +1,11 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api
+from uuid import uuid4
 
 
 mock_users = [
     {
-        'id': 0,
+        'id': str(uuid4()),
         'username': 'username0',
         'name': 'User',
         'surname': '0',
@@ -14,7 +15,7 @@ mock_users = [
         'last_activity': '2019-08-17 20:54:47.051355',
     },
     {
-        'id': 1,
+        'id': str(uuid4()),
         'username': 'username1',
         'name': 'User',
         'surname': '1',
@@ -24,14 +25,10 @@ mock_users = [
     },
 ]
 
-last_id = 1
-
 
 def create_user(user_dict):
     global mock_users
-    global last_id
-    last_id += 1
-    user_dict['id'] = last_id
+    user_dict['id'] = str(uuid4())
     mock_users.append(user_dict)
     return mock_users[-1]
 
@@ -86,4 +83,4 @@ user_bp = Blueprint('user_bp', __name__, url_prefix='/user')
 
 user_api = Api(user_bp)
 user_api.add_resource(User, '/')
-user_api.add_resource(UserProfile, '/<int:id>/')
+user_api.add_resource(UserProfile, '/<string:id>/')
