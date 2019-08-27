@@ -24,32 +24,62 @@ mock_users = [
     },
 ]
 
+last_id = 1
+
 
 def create_user(user_dict):
     global mock_users
-    user_dict['id'] = len(mock_users)
+    global last_id
+    last_id += 1
+    user_dict['id'] = last_id
     mock_users.append(user_dict)
     return mock_users[-1]
 
 
+def find_user(id):
+    for user in mock_users:
+        if user['id'] == id:
+            return user
+    return None
+
+
+def delete_user(id):
+    for user in mock_users:
+        if user['id'] == id:
+            mock_users.remove(user)
+            return True
+    return False
+
+
 class User(Resource):
     def get(self):
-        return {'users': mock_users}
+        return {'users': mock_users}, 200
 
     def post(self):
         user = create_user(request.get_json())
-        return {'user': user}
+        return {'user': user}, 201
 
 
 class UserProfile(Resource):
     def get(self, id):
-        return {'user': mock_users[id]}
+        user = find_user(id)
+        if user:
+            return {'user': user}, 200
+        return {'msg': 'Not found!'}, 404
 
     def put(self, id):
-        return {'msg': f'Update user id: {id}'}
+        user = find_user(id)
+        if not user:
+            return {'msg': 'Not found!'}, 404
+        for key, value in request.get_json().items():
+            if key in user.keys() and key != "id":
+                user[key] = value
+        return {'msg': f'User updated!'}, 200
 
     def delete(self, id):
-        return {'msg': f'Delete user id: {id}'}
+        if delete_user(id):
+            return {'msg': 'User deleted!'}, 200
+        return {'msg': 'Not found!'}, 404
 
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/user')
