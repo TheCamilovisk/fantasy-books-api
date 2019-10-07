@@ -12,6 +12,8 @@ flake8 = "*"
 flask = "*"
 flask-restful = "*"
 flask-cors = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
 
 [requires]
 python_version = "3.7"
