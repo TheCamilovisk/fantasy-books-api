@@ -5,25 +5,17 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from fantasybooks_api.config import BaseConfig
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 ma = Marshmallow()
 migrate = Migrate()
 
-POSTGRES_URL = '127.0.0.1:5432'
-POSTGRES_USER = 'postgres'
-POSTGRES_PW = 'postgres'
-POSTGRES_DB = 'appwn_dev'
-
 
 def create_app(config=None):
     app = Flask(__name__)
-    app.config[
-        'SQLALCHEMY_DATABASE_URI'
-    ] = f'postgres+psycopg2://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_URL}/{POSTGRES_DB}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    app.config['BCRYPT_LOG_ROUNDS'] = 12
+    app.config.from_object(BaseConfig())
 
     from .auth.resources import user_bp
 
