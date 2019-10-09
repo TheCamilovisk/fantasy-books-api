@@ -55,6 +55,8 @@ class User(db.Model):
             if key in self.__dict__:
                 self.__setattr__(key, value)
 
+        self.updated_at = datetime.utcnow()
+
         try:
             db.session.commit()
         except SQLAlchemyError as error:
