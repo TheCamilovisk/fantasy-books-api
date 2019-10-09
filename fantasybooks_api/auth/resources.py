@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from flask_restful import Api, Resource
 from sqlalchemy.exc import SQLAlchemyError
+from marshmallow import EXCLUDE
 
 from fantasybooks_api.models import User
 from fantasybooks_api.schemas import UserSchema
@@ -32,17 +33,11 @@ class UserProfile(Resource):
         if not user:
             return {'msg': 'User not found!'}, 404
 
-        update_dict = {
-            key: value
-            for key, value in request.get_json().items()
-            if key not in ('id', 'username', 'email')
-        }
-        user = User.get(id)
-
-        try:
-            user.update(data=update_dict)
-        except SQLAlchemyError as error:
-            return {'msg': handle_sqlalchemy_error(error)}, 400
+        non_update_fields = ('id', 'username', 'email')
+        user = UserSchema(exclude=non_update_fields, unknown=EXCLUDE).load(
+            request.get_json(), instance=user
+        )
+        user.save()
 
         return {'msg': f'User updated!'}, 200
 

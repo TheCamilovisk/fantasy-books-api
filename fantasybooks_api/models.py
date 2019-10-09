@@ -50,19 +50,6 @@ class User(db.Model):
             db.session.rollback()
             raise error
 
-    def update(self, **kwargs):
-        for key, value in kwargs['data'].items():
-            if key in self.__dict__:
-                self.__setattr__(key, value)
-
-        self.updated_at = datetime.utcnow()
-
-        try:
-            db.session.commit()
-        except SQLAlchemyError as error:
-            db.session.rollback()
-            raise error
-
     @classmethod
     def all(cls):
         return cls.query.all()
