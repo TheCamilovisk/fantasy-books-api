@@ -1,10 +1,11 @@
 from flask import Flask
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
-
+bcrypt = Bcrypt()
 db = SQLAlchemy()
 ma = Marshmallow()
 migrate = Migrate()
@@ -22,11 +23,14 @@ def create_app(config=None):
     ] = f'postgres+psycopg2://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_URL}/{POSTGRES_DB}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    app.config['BCRYPT_LOG_ROUNDS'] = 12
+
     from .auth.resources import user_bp
 
     app.register_blueprint(user_bp)
 
     CORS(app)
+    bcrypt.init_app(app)
     db.init_app(app)
     ma.init_app(app)
     migrate.init_app(app, db)
