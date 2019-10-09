@@ -30,7 +30,7 @@ class UserProfile(Resource):
     def put(self, id):
         user = User.get(id)
         if not user:
-            return {'msg': 'Not found!'}, 404
+            return {'msg': 'User not found!'}, 404
 
         update_dict = {
             key: value
