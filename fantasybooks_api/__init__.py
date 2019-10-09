@@ -27,4 +27,8 @@ def create_app(config=None):
     ma.init_app(app)
     migrate.init_app(app, db)
 
+    from fantasybooks_api.utils import createsuperuser
+
+    app.cli.add_command(createsuperuser)
+
     return app
