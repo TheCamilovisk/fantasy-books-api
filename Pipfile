@@ -18,6 +18,7 @@ psycopg2 = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 flask-bcrypt = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
