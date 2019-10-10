@@ -7,12 +7,13 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    name = db.Column(db.String(80), nullable=False)
-    surname = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(80), nullable=True, default=None)
+    surname = db.Column(db.String(120), nullable=True, default=None)
     email = db.Column(db.String(120), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -21,12 +22,13 @@ class User(db.Model):
         self,
         username,
         password,
-        name,
-        surname,
         email,
+        name=None,
+        surname=None,
         created_at=None,
         updated_at=None,
         last_activity=None,
+        is_admin=False
     ):
         super().__init__()
         self.username = username
@@ -36,6 +38,7 @@ class User(db.Model):
         self.created_at = created_at
         self.updated_at = updated_at
         self.last_activity = last_activity
+        self.is_admin = is_admin
 
         self.set_password(password)
 
