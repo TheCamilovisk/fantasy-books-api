@@ -43,7 +43,7 @@ class User(db.Model):
         self.set_password(password)
 
     def set_password(self, plaintext):
-        self.password = bcrypt.generate_password_hash(plaintext)
+        self.password = bcrypt.generate_password_hash(plaintext).decode('utf-8')
 
     def save(self):
         db.session.add(self)

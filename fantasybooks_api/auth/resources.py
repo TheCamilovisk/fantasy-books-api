@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Api, Resource
 from sqlalchemy.exc import SQLAlchemyError
 from marshmallow import EXCLUDE
+from flask_jwt_extended import create_access_token
 
 from fantasybooks_api.models import User
 from fantasybooks_api.schemas import UserSchema
@@ -57,3 +58,32 @@ user_bp = Blueprint('user_bp', __name__)
 user_api = Api(user_bp)
 user_api.add_resource(UserResource, '/user')
 user_api.add_resource(UserProfile, '/user/<string:id>')
+
+
+class LoginResource(Resource):
+    def post(self):
+        if not request.is_json:
+            return {'msg': 'Missing JSON in request'}, 400
+
+        username = request.json.get('username', None)
+        password = request.json.get('password', None)
+
+        if not username:
+            return {'msg': 'Missing username parameter'}, 400
+        if not password:
+            return {'msg': 'Missing password parameter'}, 400
+
+        from fantasybooks_api.models import User
+
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.check_password(password):
+            return {'msg': 'Bad username or password'}, 401
+
+        access_token = create_access_token(identity=username)
+        return {'access_token': access_token}, 200
+
+
+auth_bp = Blueprint('auth_bp', __name__)
+
+auth_api = Api(auth_bp)
+auth_api.add_resource(LoginResource, '/login')

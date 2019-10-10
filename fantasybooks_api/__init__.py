@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 
 from fantasybooks_api.config import BaseConfig
 
@@ -11,21 +12,24 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 ma = Marshmallow()
 migrate = Migrate()
+jwt = JWTManager()
 
 
 def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(BaseConfig())
 
-    from .auth.resources import user_bp
+    from .auth.resources import user_bp, auth_bp
 
     app.register_blueprint(user_bp)
+    app.register_blueprint(auth_bp)
 
     CORS(app)
     bcrypt.init_app(app)
     db.init_app(app)
     ma.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
 
     from fantasybooks_api.utils import createsuperuser
 
