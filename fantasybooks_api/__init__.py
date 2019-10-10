@@ -17,6 +17,15 @@ migrate = Migrate()
 jwt = JWTManager()
 
 
+@jwt.token_in_blacklist_loader
+def check_if_token_is_revoked(decrypted_token):
+    jti = decrypted_token['jti']
+    entry = redis.get(jti)
+    if entry is None:
+        return True
+    return entry == 'true'
+
+
 def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(BaseConfig())
