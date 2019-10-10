@@ -20,6 +20,7 @@ marshmallow-sqlalchemy = "*"
 flask-bcrypt = "*"
 python-dotenv = "*"
 flask-jwt-extended = "*"
+flask-redis = "*"
 
 [requires]
 python_version = "3.7"
