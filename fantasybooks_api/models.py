@@ -28,7 +28,7 @@ class User(db.Model):
         created_at=None,
         updated_at=None,
         last_activity=None,
-        is_admin=False
+        is_admin=False,
     ):
         super().__init__()
         self.username = username
@@ -52,6 +52,9 @@ class User(db.Model):
         except SQLAlchemyError as error:
             db.session.rollback()
             raise error
+
+    def check_password(self, plaintext):
+        return bcrypt.check_password_hash(self.password, plaintext)
 
     @classmethod
     def all(cls):
