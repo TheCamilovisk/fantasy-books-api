@@ -1,8 +1,14 @@
 from flask import Blueprint, request
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_refresh_token_required,
+    jwt_required,
+)
 from flask_restful import Api, Resource
-from sqlalchemy.exc import SQLAlchemyError
 from marshmallow import EXCLUDE
-from flask_jwt_extended import create_access_token
+from sqlalchemy.exc import SQLAlchemyError
 
 from fantasybooks_api.models import User
 from fantasybooks_api.schemas import UserSchema
@@ -10,6 +16,7 @@ from fantasybooks_api.utils import handle_sqlalchemy_error
 
 
 class UserResource(Resource):
+    @jwt_required
     def get(self):
         return {'users': UserSchema(many=True).dump(User.all())}, 200
 
@@ -29,6 +36,7 @@ class UserProfile(Resource):
             return {'user': UserSchema().dump(user)}, 200
         return {'msg': 'User not found!'}, 404
 
+    @jwt_required
     def put(self, id):
         user = User.get(id)
         if not user:
@@ -42,6 +50,7 @@ class UserProfile(Resource):
 
         return {'msg': f'User updated!'}, 200
 
+    @jwt_required
     def delete(self, id):
         try:
             User.delete(id)
@@ -79,11 +88,23 @@ class LoginResource(Resource):
         if not user or not user.check_password(password):
             return {'msg': 'Bad username or password'}, 401
 
-        access_token = create_access_token(identity=username)
-        return {'access_token': access_token}, 200
+        return (
+            {
+                'access_token': create_access_token(identity=username),
+                'refresh_token': create_refresh_token(identity=username),
+            },
+            200,
+        )
+
+
+class TokenRefreshResource(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        return {'access_token': create_access_token(identity=get_jwt_identity())}, 200
 
 
 auth_bp = Blueprint('auth_bp', __name__)
 
 auth_api = Api(auth_bp)
 auth_api.add_resource(LoginResource, '/login')
+auth_api.add_resource(TokenRefreshResource, '/login/refresh')
