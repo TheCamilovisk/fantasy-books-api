@@ -1,6 +1,7 @@
 import click
 from flask.cli import with_appcontext
 from sqlalchemy.exc import SQLAlchemyError
+from getpass import getpass
 
 from fantasybooks_api.models import User
 
@@ -16,11 +17,13 @@ def handle_sqlalchemy_error(error: SQLAlchemyError) -> str:
 @click.argument('surname')
 @with_appcontext
 def createsuperuser(username, email, name, surname):
-    password = input('Enter your password: ')
-    if input('Re-enter your password: ') is not password:
+    password1 = getpass('Enter your password: ')
+    password2 = getpass('Re-enter your password: ')
+    if password1 != password2:
         print('Password do not match')
+        return
 
-    superuser = User(username, password, name, surname, email)
+    superuser = User(username, password1, name, surname, email)
     superuser.save()
 
     print('Super user created.')
