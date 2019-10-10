@@ -2,6 +2,8 @@ from os import getenv
 
 
 class BaseConfig:
+    SECRET_KEY = 'dev'
+    
     SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://{}:{}@{}/{}'.format(
         getenv("POSTGRES_USER"),
         getenv("POSTGRES_PW"),
