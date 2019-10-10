@@ -33,7 +33,7 @@ class UserProfile(Resource):
         if not user:
             return {'msg': 'User not found!'}, 404
 
-        non_update_fields = ('id', 'username', 'email')
+        non_update_fields = ('id', 'username', 'email', 'is_admin')
         user = UserSchema(exclude=non_update_fields, unknown=EXCLUDE).load(
             request.get_json(), instance=user
         )
