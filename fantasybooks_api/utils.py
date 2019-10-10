@@ -23,7 +23,14 @@ def createsuperuser(username, email, name, surname):
         print('Password do not match')
         return
 
-    superuser = User(username, password1, name, surname, email)
+    superuser = User(
+        username=username,
+        password=password1,
+        name=name,
+        surname=surname,
+        email=email,
+        is_admin=True,
+    )
     superuser.save()
 
     print('Super user created.')
