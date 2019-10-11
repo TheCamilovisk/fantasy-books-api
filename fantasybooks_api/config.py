@@ -1,6 +1,6 @@
 from os import getenv
 
-from dateutil import relativedelta
+from datetime import timedelta
 
 
 class BaseConfig:
@@ -19,7 +19,7 @@ class BaseConfig:
     JWT_SECRET_KEY = 'dev'
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')
-    JWT_ACCESS_TOKEN_EXPIRES = relativedelta(minutes=15)
-    JWT_REFRESH_TOKEN_EXPIRES = relativedelta(days=30)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
     REDIS_URL = 'redis://:redis@localhost:6379/0'
