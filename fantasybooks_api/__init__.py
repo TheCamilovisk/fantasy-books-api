@@ -23,7 +23,7 @@ def check_if_token_is_revoked(decrypted_token):
     entry = redis.get(jti)
     if entry is None:
         return True
-    return entry == 'true'
+    return entry == b'true'
 
 
 def create_app(config=None):
