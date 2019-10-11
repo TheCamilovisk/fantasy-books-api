@@ -9,3 +9,15 @@ class UserSchema(ma.ModelSchema):
 
     class Meta:
         model = User
+        fields = (
+            'id',
+            'username',
+            'password',
+            'name',
+            'surname',
+            'email',
+            'created_at',
+            'updated_at',
+            'last_activity',
+            'is_admin',
+        )

@@ -1,12 +1,13 @@
 from fantasybooks_api import db, bcrypt
 from datetime import datetime
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.exc import SQLAlchemyError
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    _password = db.Column(db.String(128), nullable=False)
     name = db.Column(db.String(80), nullable=True, default=None)
     surname = db.Column(db.String(120), nullable=True, default=None)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -40,10 +41,15 @@ class User(db.Model):
         self.last_activity = last_activity
         self.is_admin = is_admin
 
-        self.set_password(password)
+        self.password = password
 
-    def set_password(self, plaintext):
-        self.password = bcrypt.generate_password_hash(plaintext).decode('utf-8')
+    @hybrid_property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, plaintext):
+        self._password = bcrypt.generate_password_hash(plaintext).decode('utf-8')
 
     def save(self):
         db.session.add(self)
@@ -54,7 +60,7 @@ class User(db.Model):
             raise error
 
     def check_password(self, plaintext):
-        return bcrypt.check_password_hash(self.password, plaintext)
+        return bcrypt.check_password_hash(self._password, plaintext)
 
     @classmethod
     def all(cls):
