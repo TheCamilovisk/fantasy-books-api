@@ -17,6 +17,17 @@ from fantasybooks_api.schemas import UserSchema
 from fantasybooks_api.utils import handle_sqlalchemy_error
 
 
+class UserProfileResource(Resource):
+    @jwt_required
+    def post(self):
+        user = User.find(get_jwt_identity())
+
+        if not user:
+            return {'msg': 'User not found!'}, 404
+
+        return UserSchema().dump(user), 200
+
+
 class UserResource(Resource):
     def get(self, id):
         user = User.get(id)
