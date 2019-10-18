@@ -18,20 +18,6 @@ from fantasybooks_api.utils import handle_sqlalchemy_error
 
 
 class UserResource(Resource):
-    @jwt_required
-    def get(self):
-        return {'users': UserSchema(many=True).dump(User.all())}, 200
-
-    def post(self):
-        new_user = UserSchema().load(request.get_json())
-        try:
-            new_user.save()
-        except SQLAlchemyError as error:
-            return {'msg': handle_sqlalchemy_error(error)}, 400
-        return {'msg': 'User created', 'user_id': new_user.id}, 201
-
-
-class UserProfile(Resource):
     def get(self, id):
         user = User.get(id)
         if user:
@@ -64,11 +50,26 @@ class UserProfile(Resource):
         return {'msg': 'User deleted!'}, 200
 
 
+class UsersListResource(Resource):
+    @jwt_required
+    def get(self):
+        return {'users': UserSchema(many=True).dump(User.all())}, 200
+
+    def post(self):
+        new_user = UserSchema().load(request.get_json())
+        try:
+            new_user.save()
+        except SQLAlchemyError as error:
+            return {'msg': handle_sqlalchemy_error(error)}, 400
+        return {'msg': 'User created', 'user_id': new_user.id}, 201
+
+
 user_bp = Blueprint('user_bp', __name__)
 
 user_api = Api(user_bp)
-user_api.add_resource(UserResource, '/user')
-user_api.add_resource(UserProfile, '/user/<string:id>')
+user_api.add_resource(UserProfileResource, '/profile')
+user_api.add_resource(UserResource, '/user/<string:id>')
+user_api.add_resource(UsersListResource, '/users')
 
 
 class LoginResource(Resource):
