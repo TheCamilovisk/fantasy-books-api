@@ -71,6 +71,10 @@ class User(db.Model):
         return cls.query.get(id)
 
     @classmethod
+    def find(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    @classmethod
     def delete(cls, id):
         user = cls.get(id)
         if not user:
