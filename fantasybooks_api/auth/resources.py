@@ -106,7 +106,15 @@ class LoginResource(Resource):
             current_app.config['JWT_REFRESH_TOKEN_EXPIRES'] * 1.2,
         )
 
-        return ({'access_token': access_token, 'refresh_token': refresh_token}, 200)
+        return (
+            {
+                'user_id': user.id,
+                'username': user.username,
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+            },
+            200,
+        )
 
 
 class TokenRefreshResource(Resource):
