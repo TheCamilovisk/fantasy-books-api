@@ -30,7 +30,7 @@ def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(BaseConfig())
 
-    from .auth.resources import user_bp, auth_bp
+    from .resources.auth import user_bp, auth_bp
 
     app.register_blueprint(user_bp)
     app.register_blueprint(auth_bp)
