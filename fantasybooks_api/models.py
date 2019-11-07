@@ -1,7 +1,10 @@
-from fantasybooks_api import db, bcrypt
 from datetime import datetime
-from sqlalchemy.ext.hybrid import hybrid_property
+from hashlib import md5
+
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.hybrid import hybrid_property
+
+from fantasybooks_api import bcrypt, db
 
 
 class User(db.Model):
@@ -86,3 +89,7 @@ class User(db.Model):
         except SQLAlchemyError as error:
             db.session.rollback()
             raise error
+
+    def avatar(self):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'http://www.gravatar.com/avatar/{digest}?d=identicon'

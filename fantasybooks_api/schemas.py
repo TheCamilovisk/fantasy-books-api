@@ -6,6 +6,7 @@ from fantasybooks_api.models import User
 
 class UserSchema(ma.ModelSchema):
     password = fields.String(load_only=True)
+    avatar = fields.Function(lambda obj: obj.avatar(), dump_only=True)
 
     class Meta:
         model = User
@@ -20,4 +21,5 @@ class UserSchema(ma.ModelSchema):
             'updated_at',
             'last_activity',
             'is_admin',
+            'avatar'
         )
