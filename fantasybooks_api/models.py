@@ -1,9 +1,10 @@
 from datetime import datetime
 from hashlib import md5
 
+from sqlalchemy import func, or_
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from fantasybooks_api import bcrypt, db
 
@@ -101,3 +102,32 @@ class UserModel(BaseModel):
     def avatar(self):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'http://www.gravatar.com/avatar/{digest}?d=identicon'
+
+
+class AuthorModel(BaseModel):
+    name = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(80), nullable=False)
+    bio = db.Column(db.Text, nullable=True)
+    books = db.relationship('BookModel', backref='author', lazy=True)
+
+    @classmethod
+    def find(cls, name):
+        name = name.lower()
+        return cls.query.filter(
+            or_(
+                func.lower(cls.name).contains(name),
+                func.lower(cls.surname).contains(name),
+            )
+        ).all()
+
+
+class BookModel(BaseModel):
+    title = db.Column(db.String(300), nullable=False)
+    year = db.Column(db.Integer, nullable=True)
+    pages = db.Column(db.Integer, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('authors.id'), nullable=False)
+
+    @classmethod
+    def find(cls, name):
+        return cls.query.filter(func.lower(cls.title).contains(name.lower())).all()
