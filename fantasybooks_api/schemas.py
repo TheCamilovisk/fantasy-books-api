@@ -1,7 +1,7 @@
 from marshmallow import fields
 
 from fantasybooks_api import ma
-from fantasybooks_api.models import User
+from fantasybooks_api.models import UserModel
 
 
 class UserSchema(ma.ModelSchema):
@@ -9,7 +9,7 @@ class UserSchema(ma.ModelSchema):
     avatar = fields.Function(lambda obj: obj.avatar(), dump_only=True)
 
     class Meta:
-        model = User
+        model = UserModel
         fields = (
             'id',
             'username',

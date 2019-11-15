@@ -3,7 +3,7 @@ from flask.cli import with_appcontext
 from sqlalchemy.exc import SQLAlchemyError
 from getpass import getpass
 
-from fantasybooks_api.models import User
+from fantasybooks_api.models import UserModel
 
 
 def handle_sqlalchemy_error(error: SQLAlchemyError) -> str:
@@ -23,7 +23,7 @@ def createsuperuser(username, email, name, surname):
         print('Password do not match')
         return
 
-    superuser = User(
+    superuser = UserModel(
         username=username,
         password=password1,
         name=name,

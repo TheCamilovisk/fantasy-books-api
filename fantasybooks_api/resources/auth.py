@@ -12,7 +12,7 @@ from flask_restful import Api, Resource
 from marshmallow import EXCLUDE
 from sqlalchemy.exc import SQLAlchemyError
 
-from fantasybooks_api.models import User
+from fantasybooks_api.models import UserModel
 from fantasybooks_api.schemas import UserSchema
 from fantasybooks_api.utils import handle_sqlalchemy_error
 
@@ -20,7 +20,7 @@ from fantasybooks_api.utils import handle_sqlalchemy_error
 class UserProfileResource(Resource):
     @jwt_required
     def post(self):
-        user = User.find(get_jwt_identity())
+        user = UserModel.find(get_jwt_identity())
 
         if not user:
             return {'msg': 'User not found!'}, 404
@@ -30,14 +30,14 @@ class UserProfileResource(Resource):
 
 class UserResource(Resource):
     def get(self, id):
-        user = User.get(id)
+        user = UserModel.get(id)
         if user:
             return {'user': UserSchema().dump(user)}, 200
         return {'msg': 'User not found!'}, 404
 
     @jwt_required
     def put(self, id):
-        user = User.get(id)
+        user = UserModel.get(id)
         if not user:
             return {'msg': 'User not found!'}, 404
 
@@ -52,7 +52,7 @@ class UserResource(Resource):
     @jwt_required
     def delete(self, id):
         try:
-            User.delete(id)
+            UserModel.delete(id)
         except RuntimeError as error:
             return {'msg': str(error)}, 400
         except SQLAlchemyError as error:
@@ -64,7 +64,7 @@ class UserResource(Resource):
 class UsersListResource(Resource):
     @jwt_required
     def get(self):
-        return {'users': UserSchema(many=True).dump(User.all())}, 200
+        return {'users': UserSchema(many=True).dump(UserModel.all())}, 200
 
     def post(self):
         new_user = UserSchema().load(request.get_json())
@@ -96,9 +96,7 @@ class LoginResource(Resource):
         if not password:
             return {'msg': 'Missing password parameter'}, 400
 
-        from fantasybooks_api.models import User
-
-        user = User.query.filter_by(username=username).first()
+        user = UserModel.query.filter_by(username=username).first()
         if not user or not user.check_password(password):
             return {'msg': 'Bad username or password'}, 401
 

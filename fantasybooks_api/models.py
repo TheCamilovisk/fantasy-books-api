@@ -3,19 +3,58 @@ from hashlib import md5
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.declarative import declared_attr
 
 from fantasybooks_api import bcrypt, db
 
 
-class User(db.Model):
+class BaseModel(db.Model):
+    __abstract__ = True
+
     id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower().replace('model', '') + 's'
+
+    def save(self):
+        db.session.add(self)
+        try:
+            db.session.commit()
+        except SQLAlchemyError as error:
+            db.session.rollback()
+            raise error
+
+    @classmethod
+    def all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def get(cls, id):
+        return cls.query.get(id)
+
+    @classmethod
+    def delete(cls, id):
+        user = cls.get(id)
+        if not user:
+            raise RuntimeError('Not found')
+
+        db.session.delete(user)
+        try:
+            db.session.commit()
+        except SQLAlchemyError as error:
+            db.session.rollback()
+            raise error
+
+
+class UserModel(BaseModel):
     username = db.Column(db.String(80), unique=True, nullable=False)
     _password = db.Column(db.String(128), nullable=False)
     name = db.Column(db.String(80), nullable=True, default=None)
     surname = db.Column(db.String(120), nullable=True, default=None)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_activity = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
@@ -34,13 +73,11 @@ class User(db.Model):
         last_activity=None,
         is_admin=False,
     ):
-        super().__init__()
+        super().__init__(created_at=created_at, updated_at=updated_at)
         self.username = username
         self.name = name
         self.surname = surname
         self.email = email
-        self.created_at = created_at
-        self.updated_at = updated_at
         self.last_activity = last_activity
         self.is_admin = is_admin
 
@@ -54,41 +91,12 @@ class User(db.Model):
     def password(self, plaintext):
         self._password = bcrypt.generate_password_hash(plaintext).decode('utf-8')
 
-    def save(self):
-        db.session.add(self)
-        try:
-            db.session.commit()
-        except SQLAlchemyError as error:
-            db.session.rollback()
-            raise error
-
     def check_password(self, plaintext):
         return bcrypt.check_password_hash(self._password, plaintext)
 
     @classmethod
-    def all(cls):
-        return cls.query.all()
-
-    @classmethod
-    def get(cls, id):
-        return cls.query.get(id)
-
-    @classmethod
     def find(cls, username):
         return cls.query.filter_by(username=username).first()
-
-    @classmethod
-    def delete(cls, id):
-        user = cls.get(id)
-        if not user:
-            raise RuntimeError('User does not exists')
-
-        db.session.delete(user)
-        try:
-            db.session.commit()
-        except SQLAlchemyError as error:
-            db.session.rollback()
-            raise error
 
     def avatar(self):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
